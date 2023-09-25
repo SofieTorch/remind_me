@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:remind_me/home/providers/date_provider.dart';
 import 'package:remind_me/home/widgets/horizontal_calendar.dart';
+import 'package:remind_me/utils/datetime_extension.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -26,24 +29,30 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ),
-      body: const Padding(
-        padding: EdgeInsets.all(16),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
         child: Flex(
           direction: Axis.vertical,
           children: [
-            Row(
-              children: [
-                Text('September 24'),
-              ],
+            Consumer(
+              builder: (context, ref, child) {
+                final selectedDate = ref.watch(dateProvider);
+
+                return Row(
+                  children: [
+                    Text('${selectedDate.monthName} ${selectedDate.year}'),
+                  ],
+                );
+              },
             ),
-            Flexible(
+            const Flexible(
               flex: 3,
               child: Padding(
                 padding: EdgeInsets.only(top: 16, bottom: 24),
                 child: HorizontalCalendar(),
               ),
             ),
-            Flexible(flex: 11, child: Placeholder()),
+            const Flexible(flex: 11, child: Placeholder()),
           ],
         ),
       ),

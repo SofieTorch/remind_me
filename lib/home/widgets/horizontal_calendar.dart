@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:remind_me/home/providers/date_provider.dart';
+import 'package:remind_me/utils/datetime_extension.dart';
 
 class HorizontalCalendar extends StatelessWidget {
   const HorizontalCalendar({super.key});
@@ -22,48 +25,50 @@ class HorizontalCalendar extends StatelessWidget {
   }
 }
 
-class _HorizontalCalendarDay extends StatelessWidget {
+class _HorizontalCalendarDay extends ConsumerWidget {
   const _HorizontalCalendarDay(this.index) : daysFromToday = index ~/ 2;
 
   final int index;
   final int daysFromToday;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedDate = ref.watch(dateProvider);
     final date = DateTime.now().add(Duration(days: daysFromToday));
+    final isSelectedDate = _checkIfIsSelectedDay(selectedDate);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          alignment: Alignment.center,
-          width: 36,
-          padding: const EdgeInsets.symmetric(vertical: 24),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            borderRadius: BorderRadius.circular(50),
+        InkWell(
+          borderRadius: BorderRadius.circular(50),
+          onTap: () => ref.read(dateProvider.notifier).state = date,
+          child: Container(
+            alignment: Alignment.center,
+            width: 36,
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            decoration: BoxDecoration(
+              color: isSelectedDate
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(50),
+              border: Border.all(
+                color: isSelectedDate
+                    ? Colors.transparent
+                    : Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            child: Text(date.day.toString()),
           ),
-          child: Text(date.day.toString()),
         ),
         const SizedBox(height: 6),
         Text(date.weekdayName.substring(0, 3)),
       ],
     );
   }
-}
 
-extension on DateTime {
-  String get weekdayName {
-    final dayNames = {
-      1: 'Monday',
-      2: 'Tuesday',
-      3: 'Wednesday',
-      4: 'Thursday',
-      5: 'Friday',
-      6: 'Saturday',
-      7: 'Sunday',
-    };
-
-    return dayNames[weekday]!;
+  bool _checkIfIsSelectedDay(DateTime selectedDate) {
+    final differenceWithToday = selectedDate.difference(DateTime.now());
+    return differenceWithToday.inDays == daysFromToday;
   }
 }
