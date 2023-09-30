@@ -26,16 +26,18 @@ class HorizontalCalendar extends StatelessWidget {
 }
 
 class _HorizontalCalendarDay extends ConsumerWidget {
-  const _HorizontalCalendarDay(this.index) : daysFromToday = index ~/ 2;
+  _HorizontalCalendarDay(this.index) : daysFromToday = index ~/ 2 {
+    date = DateTime.now().add(Duration(days: daysFromToday)).removeTime();
+  }
 
   final int index;
   final int daysFromToday;
+  late final DateTime date;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedDate = ref.watch(dateProvider);
-    final date = DateTime.now().add(Duration(days: daysFromToday));
-    final isSelectedDate = _checkIfIsSelectedDay(selectedDate);
+    final isSelectedDate = date.isAtSameMomentAs(selectedDate);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -65,10 +67,5 @@ class _HorizontalCalendarDay extends ConsumerWidget {
         Text(date.weekdayName.substring(0, 3)),
       ],
     );
-  }
-
-  bool _checkIfIsSelectedDay(DateTime selectedDate) {
-    final differenceWithToday = selectedDate.difference(DateTime.now());
-    return differenceWithToday.inDays == daysFromToday;
   }
 }
